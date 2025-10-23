@@ -34,6 +34,9 @@ with col2:
 st.markdown("---")
 
 # --- AI Model (baru dan aktif) ---
+import requests
+import streamlit as st
+
 API_URL = "https://api-inference.huggingface.co/models/google/gemma-2b-it"
 
 headers = {"Authorization": f"Bearer {st.secrets['HUGGINGFACE_TOKEN']}"}
@@ -41,13 +44,17 @@ headers = {"Authorization": f"Bearer {st.secrets['HUGGINGFACE_TOKEN']}"}
 def generate_description(prompt):
     payload = {"inputs": prompt}
     response = requests.post(API_URL, headers=headers, json=payload)
+
     if response.status_code == 200:
         data = response.json()
         if isinstance(data, list) and "generated_text" in data[0]:
             return data[0]["generated_text"]
         elif isinstance(data, dict) and "generated_text" in data:
             return data["generated_text"]
-    return "Tidak dapat membuat deskripsi otomatis."
+        else:
+            return "Tidak dapat menemukan teks yang dihasilkan."
+    else:
+        return f"Error {response.status_code}: {response.text}"
 
 # --- Upload Foto ---
 st.subheader("📸 Upload Foto Hasil Karya (maks. 3 anak)")
